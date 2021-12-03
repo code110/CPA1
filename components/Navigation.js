@@ -4,34 +4,46 @@ import {StyleSheet, Text, View, Button, Image, TextInput, ScrollView } from 'rea
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import Watchlist from './watchlist'
+import WatchlistView from './watchlist'
+import ChartView from './ChartView'
 
+
+
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
+const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
+
+function Watchlist () {
+  return (
+    <Stack.Navigator> 
+        <Stack.Screen name="WatchlistView" component={WatchlistView} />
+        <Stack.Screen name="ChartView" component={ChartView} />
+      
+    </Stack.Navigator>
+  )
+}
 
 const MyStack = () => {
   return (
+
     <NavigationContainer>
-      <Stack.Navigator>
-
-        <Stack.Screen
-          name="Stock Trading Tools"
-          component={HomeScreen}
-          //options={{ title: 'Welcome' }}
-        />
-        
-        <Stack.Screen name="About" component={AboutScreen} /> 
-        <Stack.Screen name="Check" component={Watchlist} />
-        <Stack.Screen name="Join" component={JoinScreen} />
-
-
-      </Stack.Navigator>
+      <Tab.Navigator>
+        <Tab.Screen name="Home"
+          component={HomeScreen}/>
+          <Tab.Screen name="Watchlist" component={Watchlist} />
+          <Tab.Screen name="About" component={AboutScreen} />
+          <Tab.Screen name="Join" component={JoinScreen} />
+          
+        </Tab.Navigator>
+      
     </NavigationContainer>
   );
 };
 
 const HomeScreen = ({ navigation }) => {
-  const [stock, onChangeStock] = React.useState(null);
-  const [username,onChangeUsername] = useState();
+  const [stock, onChangeStock] = useState('');
+ 
 
   return(
     <ScrollView contentContainerStyle={{flexDirection:'column',justifyContent:'center'}}>
@@ -44,19 +56,6 @@ const HomeScreen = ({ navigation }) => {
 
       <View>
         
-      <TextInput
-          style= {styles.input}
-          onChangeText= {onChangeUsername}
-          value={username}
-          placeholder="Username"
-        />
-        <Button
-          title="Login"
-          onPress={() =>
-            navigation.navigate('Login')
-               
-          }
-        />
         <Text style={styles.paragraph}>Please input the stock code:</Text>
         <TextInput
           style= {styles.input}
@@ -67,31 +66,13 @@ const HomeScreen = ({ navigation }) => {
         <Button
           title="Check"
           onPress={() =>
-            navigation.navigate('Check')
+            navigation.navigate('Watchlist')
                
           }
         />
         
       </View>
 
-    <View style={styles.Button }>
-
-        <Button
-          title="About this App"
-          onPress={() =>
-            navigation.navigate('About')
-               
-          }
-        />
-
-          <Button
-          title="Join us"
-          onPress={() =>
-            navigation.navigate('Join')
-               
-          }
-        />
-    </View>
    </ScrollView>
   )
 }
@@ -115,7 +96,6 @@ const JoinScreen = ({navigation}) =>{
       
     </View>
   )
-
   
 }
 

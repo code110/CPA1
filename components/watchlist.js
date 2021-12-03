@@ -1,14 +1,13 @@
 import React, { useState, useEffect }  from 'react';
-import { View, Button,
+import { View, Button,TouchableOpacity,
          FlatList, StyleSheet,
          Text, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import ChartComponent,{Plot} from './Chart.js';
-//import WebView from 'react-native-webview';
-import SimpleWidget from './Widget.js';
+import Chart from './Chart';
 
-const Watchlist =() => {
-    const [stock, setStock] = useState("");
+const WatchlistView =({navigation}) => {
+  
+    const [stock, setStock] = useState();
     const [list, setList] = useState([]);
 
     useEffect(() => {getData()}
@@ -58,11 +57,35 @@ const clearAll = async () => {
     }
 }
 
-const renderItem = ({item}) => {
+const Item = ({ item, onPress, backgroundColor, textColor }) => (
+    <TouchableOpacity onPress={onPress} style={[styles.item, backgroundColor]}>
+      <Text style={[styles.title, textColor]}>{item.stock}</Text>
+    </TouchableOpacity>
+  );
+const [selectedId, setSelectedId] = useState(null);
+  const renderItem = ({item}) => {
+    const backgroundColor = item.stock === selectedId ? 'blue' : 'lightblue';
+    const color = item.stock === selectedId ? 'white' : 'black';
     return (
-      <View >
-           <Text>{item.stock}</Text>
-      </View>
+      <Item
+        item={item}
+        onPress={() => {
+          setSelectedId(item.stock);
+          navigation.navigate('ChartView', {
+            ticker: item.stock,
+            otherParam: 'anything you want here',
+          });
+        }}
+        // onPress={() => {
+        //   const newList1 = list.filter(function(value){ 
+        //     return value != item.stock;
+        // });
+        //   setList(newList1)
+        //   storeData(newList1)
+        // }}
+        backgroundColor={{ backgroundColor }}
+        textColor={{ color }}
+      />
     )
   }
     return (
@@ -70,18 +93,21 @@ const renderItem = ({item}) => {
         <TextInput
             style= {styles.input}
             onChangeText= {text => {
-                setStock(text);
+                let temp= text.toUpperCase();
+                setStock(temp);
             }}
-            value={stock}
+            
             placeholder="Stock code: such as AAPL"
           />
           <Button
             title="Check"
             onPress={() =>{
+              if(stock!="" && !list.includes(stock)){
               const newList = list.concat({'stock':stock})
               setList(newList)
-              storeData(stock)
-              //setStock("")
+              storeData(newList)
+              setStock("")
+              }
 
             }}
           />
@@ -95,8 +121,6 @@ const renderItem = ({item}) => {
                 />
   
         <Text style={styles.paragraph}> The information about {stock} </Text>
-        {ChartComponent}
-        {/* {Plot()} */}
         
         <View style={{flexDirection:'row',
                     justifyContent:'center',
@@ -110,18 +134,36 @@ const renderItem = ({item}) => {
         <FlatList
         data={list}
         renderItem={renderItem}
+        keyExtractor = {item => item.stock}
+        extraData ={selectedId}
       />
       
-      
-    
-      
-      
+      <View>
+          <Text></Text>
+      </View>
       
       </View>
     )
   }
 
-  export default Watchlist;
+  // const ChartView = ({route, navigation}) => {
+  //   const {ticker} = route.params;
+  //   const {otherParam} = route.params;
+  //     return(
+  //       <View>
+  //         <Text>{JSON.stringify(ticker)}</Text>
+        
+        
+  //       <Chart label={ticker}/>
+        
+  //       </View>
+  //     )
+  // }
+
+
+  
+  export default WatchlistView;
+  
 
   const styles = StyleSheet.create({
     container: {
@@ -161,7 +203,17 @@ const renderItem = ({item}) => {
     join:{
       fontSize: 36,
       textAlign: 'center',
-    }
+    },
+
+    item: {
+      padding: 20,
+      marginVertical: 8,
+      marginHorizontal: 16,
+    },
+
+    title: {
+      fontSize: 32,
+    },
   
     
   

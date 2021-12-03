@@ -1,99 +1,100 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { createChart, CrosshairMode } from 'lightweight-charts';
-import {View} from 'react-native'
-let chart;
-let candlestickSeries;
+import React, { useState, useEffect } from "react";
+import {View,Text,Button,TouchableOpacity,FlatList,StyleSheet, ScrollView} from 'react-native'
+import Axios from 'axios'
+import { VictoryCandlestick, VictoryAxis,VictoryZoomContainer,VictoryVoronoiContainer,VictoryChart, VictoryTheme } from "victory-native";
+//import { VictoryCandlestick, VictoryZoomContainer,VictoryVoronoiContainer,VictoryChart, VictoryTheme } from "victory";
 
-const ChartComponent = () => {
+const Chart = (props) =>{
+  const [ticker,setTicker] = useState(props.label);
+  const [date,setDate] = useState([]);
+  const [data,setData] = useState([]);
 
-  const Plot =()=>{
+  //const data1 = [{"x":"2021-09-02T13:30:00.000Z","open":153.8699951171875,"close":153.64999389648438,"high":154.72000122070312,"low":152.39999389648438},{"x":"2021-09-03T13:30:00.000Z","open":153.75999450683594,"close":154.3000030517578,"high":154.6300048828125,"low":153.08999633789062},{"x":"2021-09-07T13:30:00.000Z","open":154.97000122070312,"close":156.69000244140625,"high":157.25999450683594,"low":154.38999938964844},{"x":"2021-09-08T13:30:00.000Z","open":156.97999572753906,"close":155.11000061035156,"high":157.0399932861328,"low":153.97999572753906},{"x":"2021-09-09T13:30:00.000Z","open":155.49000549316406,"close":154.07000732421875,"high":156.11000061035156,"low":153.9499969482422},{"x":"2021-09-10T13:30:00.000Z","open":155,"close":148.97000122070312,"high":155.47999572753906,"low":148.6999969482422},{"x":"2021-09-13T13:30:00.000Z","open":150.6300048828125,"close":149.5500030517578,"high":151.4199981689453,"low":148.75},{"x":"2021-09-14T13:30:00.000Z","open":150.35000610351562,"close":148.1199951171875,"high":151.07000732421875,"low":146.91000366210938},{"x":"2021-09-15T13:30:00.000Z","open":148.55999755859375,"close":149.02999877929688,"high":149.44000244140625,"low":146.3699951171875},{"x":"2021-09-16T13:30:00.000Z","open":148.44000244140625,"close":148.7899932861328,"high":148.97000122070312,"low":147.22000122070312},{"x":"2021-09-17T13:30:00.000Z","open":148.82000732421875,"close":146.05999755859375,"high":148.82000732421875,"low":145.75999450683594},{"x":"2021-09-20T13:30:00.000Z","open":143.8000030517578,"close":142.94000244140625,"high":144.83999633789062,"low":141.27000427246094},{"x":"2021-09-21T13:30:00.000Z","open":143.92999267578125,"close":143.42999267578125,"high":144.60000610351562,"low":142.77999877929688},{"x":"2021-09-22T13:30:00.000Z","open":144.4499969482422,"close":145.85000610351562,"high":146.42999267578125,"low":143.6999969482422},{"x":"2021-09-23T13:30:00.000Z","open":146.64999389648438,"close":146.8300018310547,"high":147.0800018310547,"low":145.63999938964844},{"x":"2021-09-24T13:30:00.000Z","open":145.66000366210938,"close":146.9199981689453,"high":147.47000122070312,"low":145.55999755859375},{"x":"2021-09-27T13:30:00.000Z","open":145.47000122070312,"close":145.3699951171875,"high":145.9600067138672,"low":143.82000732421875},{"x":"2021-09-28T13:30:00.000Z","open":143.25,"close":141.91000366210938,"high":144.75,"low":141.69000244140625},{"x":"2021-09-29T13:30:00.000Z","open":142.47000122070312,"close":142.8300018310547,"high":144.4499969482422,"low":142.02999877929688},{"x":"2021-09-30T13:30:00.000Z","open":143.66000366210938,"close":141.5,"high":144.3800048828125,"low":141.27999877929688},{"x":"2021-10-01T13:30:00.000Z","open":141.89999389648438,"close":142.64999389648438,"high":142.9199981689453,"low":139.11000061035156},{"x":"2021-10-04T13:30:00.000Z","open":141.75999450683594,"close":139.13999938964844,"high":142.2100067138672,"low":138.27000427246094},{"x":"2021-10-05T13:30:00.000Z","open":139.49000549316406,"close":141.11000061035156,"high":142.24000549316406,"low":139.36000061035156},{"x":"2021-10-06T13:30:00.000Z","open":139.47000122070312,"close":142,"high":142.14999389648438,"low":138.3699951171875},{"x":"2021-10-07T13:30:00.000Z","open":143.05999755859375,"close":143.2899932861328,"high":144.22000122070312,"low":142.72000122070312},{"x":"2021-10-08T13:30:00.000Z","open":144.02999877929688,"close":142.89999389648438,"high":144.17999267578125,"low":142.55999755859375},{"x":"2021-10-11T13:30:00.000Z","open":142.27000427246094,"close":142.80999755859375,"high":144.80999755859375,"low":141.80999755859375},{"x":"2021-10-12T13:30:00.000Z","open":143.22999572753906,"close":141.50999450683594,"high":143.25,"low":141.0399932861328},{"x":"2021-10-13T13:30:00.000Z","open":141.24000549316406,"close":140.91000366210938,"high":141.39999389648438,"low":139.1999969482422},{"x":"2021-10-14T13:30:00.000Z","open":142.11000061035156,"close":143.75999450683594,"high":143.8800048828125,"low":141.50999450683594},{"x":"2021-10-15T13:30:00.000Z","open":143.77000427246094,"close":144.83999633789062,"high":144.89999389648438,"low":143.50999450683594},{"x":"2021-10-18T13:30:00.000Z","open":143.4499969482422,"close":146.5500030517578,"high":146.83999633789062,"low":143.16000366210938},{"x":"2021-10-19T13:30:00.000Z","open":147.00999450683594,"close":148.75999450683594,"high":149.1699981689453,"low":146.5500030517578},{"x":"2021-10-20T13:30:00.000Z","open":148.6999969482422,"close":149.25999450683594,"high":149.75,"low":148.1199951171875},{"x":"2021-10-21T13:30:00.000Z","open":148.80999755859375,"close":149.47999572753906,"high":149.63999938964844,"low":147.8699951171875},{"x":"2021-10-22T13:30:00.000Z","open":149.69000244140625,"close":148.69000244140625,"high":150.17999267578125,"low":148.63999938964844},{"x":"2021-10-25T13:30:00.000Z","open":148.67999267578125,"close":148.63999938964844,"high":149.3699951171875,"low":147.6199951171875},{"x":"2021-10-26T13:30:00.000Z","open":149.3300018310547,"close":149.32000732421875,"high":150.83999633789062,"low":149.00999450683594},{"x":"2021-10-27T13:30:00.000Z","open":149.36000061035156,"close":148.85000610351562,"high":149.72999572753906,"low":148.49000549316406},{"x":"2021-10-28T13:30:00.000Z","open":149.82000732421875,"close":152.57000732421875,"high":153.1699981689453,"low":149.72000122070312},{"x":"2021-10-29T13:30:00.000Z","open":147.22000122070312,"close":149.8000030517578,"high":149.94000244140625,"low":146.41000366210938},{"x":"2021-11-01T13:30:00.000Z","open":148.99000549316406,"close":148.9600067138672,"high":149.6999969482422,"low":147.8000030517578},{"x":"2021-11-02T13:30:00.000Z","open":148.66000366210938,"close":150.02000427246094,"high":151.57000732421875,"low":148.64999389648438},{"x":"2021-11-03T13:30:00.000Z","open":150.38999938964844,"close":151.49000549316406,"high":151.97000122070312,"low":149.82000732421875},{"x":"2021-11-04T13:30:00.000Z","open":151.5800018310547,"close":150.9600067138672,"high":152.42999267578125,"low":150.63999938964844},{"x":"2021-11-05T13:30:00.000Z","open":151.88999938964844,"close":151.27999877929688,"high":152.1999969482422,"low":150.05999755859375},{"x":"2021-11-08T14:30:00.000Z","open":151.41000366210938,"close":150.44000244140625,"high":151.57000732421875,"low":150.16000366210938},{"x":"2021-11-09T14:30:00.000Z","open":150.1999969482422,"close":150.80999755859375,"high":151.42999267578125,"low":150.05999755859375},{"x":"2021-11-10T14:30:00.000Z","open":150.02000427246094,"close":147.9199981689453,"high":150.1300048828125,"low":147.85000610351562},{"x":"2021-11-11T14:30:00.000Z","open":148.9600067138672,"close":147.8699951171875,"high":149.42999267578125,"low":147.67999267578125},{"x":"2021-11-12T14:30:00.000Z","open":148.42999267578125,"close":149.99000549316406,"high":150.39999389648438,"low":147.47999572753906},{"x":"2021-11-15T14:30:00.000Z","open":150.3699951171875,"close":150,"high":151.8800048828125,"low":149.42999267578125},{"x":"2021-11-16T14:30:00.000Z","open":149.94000244140625,"close":151,"high":151.49000549316406,"low":149.33999633789062},{"x":"2021-11-17T14:30:00.000Z","open":151,"close":153.49000549316406,"high":155,"low":150.99000549316406},{"x":"2021-11-18T14:30:00.000Z","open":153.7100067138672,"close":157.8699951171875,"high":158.6699981689453,"low":153.0500030517578},{"x":"2021-11-19T14:30:00.000Z","open":157.64999389648438,"close":160.5500030517578,"high":161.02000427246094,"low":156.52999877929688},{"x":"2021-11-22T14:30:00.000Z","open":161.67999267578125,"close":161.02000427246094,"high":165.6999969482422,"low":161},{"x":"2021-11-23T14:30:00.000Z","open":161.1199951171875,"close":161.41000366210938,"high":161.8000030517578,"low":159.05999755859375},{"x":"2021-11-24T14:30:00.000Z","open":160.75,"close":161.94000244140625,"high":162.13999938964844,"low":159.63999938964844},{"x":"2021-11-26T14:30:00.000Z","open":159.57000732421875,"close":156.80999755859375,"high":160.4499969482422,"low":156.36000061035156},{"x":"2021-11-29T14:30:00.000Z","open":159.3699951171875,"close":160.24000549316406,"high":161.19000244140625,"low":158.7899932861328},{"x":"2021-11-30T14:30:00.000Z","open":159.99000549316406,"close":165.3000030517578,"high":165.52000427246094,"low":159.9199981689453},{"x":"2021-12-01T14:30:00.000Z","open":167.47999572753906,"close":164.77000427246094,"high":170.3000030517578,"low":164.52999877929688}];
 
-      let stockPrices =[
-      { time: '2018-10-19', open: 180.34, high: 180.99, low: 178.57, close: 179.85 },
-      { time: '2018-10-22', open: 180.82, high: 181.40, low: 177.56, close: 178.75 },
-      { time: '2018-10-23', open: 175.77, high: 179.49, low: 175.44, close: 178.53 },
-      { time: '2018-10-24', open: 178.58, high: 182.37, low: 176.31, close: 176.97 },
-      { time: '2018-10-25', open: 177.52, high: 180.50, low: 176.83, close: 179.07 },
-      { time: '2018-10-26', open: 176.88, high: 177.34, low: 170.91, close: 172.23 },
-      { time: '2018-10-29', open: 173.74, high: 175.99, low: 170.95, close: 173.20 },
-      { time: '2018-10-30', open: 173.16, high: 176.43, low: 172.64, close: 176.24 },
-      { time: '2018-10-31', open: 177.98, high: 178.85, low: 175.59, close: 175.88 },
-      { time: '2018-11-01', open: 176.84, high: 180.86, low: 175.90, close: 180.46 },
-      { time: '2018-11-02', open: 182.47, high: 183.01, low: 177.39, close: 179.93 },
-      { time: '2018-11-05', open: 181.02, high: 182.41, low: 179.30, close: 182.19 }
-      ]
+  useEffect(() =>{
+    let tempdate = []
+    let tempdata = []
+    const getData= async () => {
+      var axios = require("axios").default;
 
-      useEffect(() => {
-      chart = createChart(document.body, {
-      width: 600,
-      height: 400,
-      });
-      chart.applyOptions({
-      timeScale: {
-      // rightOffset: 45,
-      barSpacing: 15,
-      lockVisibleTimeRangeOnResize: true,
-      rightBarStaysOnScroll: true,
-      },
-      priceScale: {
-      position: 'right',
-      // mode: 1,
-      autoScale: true,
-      // invertScale: true,
-      alignLabels: true,
-      borderVisible: false,
-      borderColor: '#555ffd',
-      // scaleMargins: {
-      //   top: 0.65,
-      //   bottom: 0.25,
-      // },
-      crosshair: {
-      mode: CrosshairMode.Normal,
-      },
-      grid: {
-      vertLines: {
-      color: 'rgba(70, 130, 180, 0.5)',
-      // style: 1,
-      // visible: true,
-      },
-      horzLines: {
-      color: 'rgba(70, 130, 180, 0.5)',
-      // style: 1,
-      // visible: true,
-      },
-      },
-      },
-      });
-      candlestickSeries = chart.addCandlestickSeries({
-      upColor: '#0B6623',
-      downColor: '#FF6347',
-      borderVisible: false,
-      wickVisible: true,
-      borderColor: '#000000',
-      wickColor: '#000000',
-      borderUpColor: '#4682B4',
-      borderDownColor: '#A52A2A',
-      wickUpColor: '#4682B4',
-      wickDownColor: '#A52A2A',
-      });
-      candlestickSeries.setData(stockPrices);
-      }, []);
-      React.useEffect(() => {
-      candlestickSeries.setData(stockPrices);
-      }, [stockPrices]);
+      var options = {
+        method: 'GET',
+        url: 'https://yfapi.net/v8/finance/chart/'+ ticker +'?range=3mo&region=US&interval=1d&lang=en',
+        params: {modules: 'defaultKeyStatistics,assetProfile'},
+        headers: {
+          'x-api-key': 'GHc4gh7Scu6nEq3IfOSh492rvIHmPIah7Js1agri'
+        }
+      };
 
+      let response = await Axios.request(options)
+      setData(response.data.chart.result[0].indicators.quote[0])
+      tempdata = response.data.chart.result[0].indicators.quote[0]
+      setDate(response.data.chart.result[0].timestamp)
+      tempdate = response.data.chart.result[0].timestamp
+    
       
+      let mydata = [];
+      for( let i=0; i < tempdate.length; i++){
+        mydata.push({x:new Date(tempdate[i]*1000),open:tempdata.open[i], close:tempdata.close[i],high:tempdata.high[i],low:tempdata.low[i]});
+      } 
+      setData(mydata)
+      console.log(data)
+
     }
-  
-      return (
-        <View>
-          {Plot()} 
+      
+    const ps = getData()
+  },[])
 
+    return(
+        <View style={styles.container}>
+          <View >
+            <VictoryChart 
+              width={420} 
+              theme={VictoryTheme.material}
+              scale={{ x: "time" }}
+             
+              // containerComponent={
+              //   <VictoryZoomContainer/>
+              // }
+              >
+                
+
+            <VictoryCandlestick
+              candleColors={{ positive: "#FF0000", negative: "#00FF00" }}
+              data= {Array.from(data)}
+              />
+            </VictoryChart>
+          </View>
+
+          
         </View>
-            
+    )
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection:'column', 
+    margin:5,
+  },  
+  title:{
+        backgroundColor: 'black',
+        alignItems:'center',
+        justifyContent:'center',
+        flex:1,
+    },
+    button: {
+        backgroundColor: "black",
+        padding: 10
+      },
+      posts:{
+        marginRight:120,
+        backgroundColor:'lightgrey',
+        padding:20,
+        margin:20,
         
-      )
-  }
+    
+      },
 
-
-  export default ChartComponent;
+})
+export default Chart;

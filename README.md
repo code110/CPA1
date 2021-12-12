@@ -3,4 +3,4 @@ This app was designed for analyzing trading data, but there’s no free detailed
 Demo Movie: https://drive.google.com/file/d/1ZHn_-Z6zZtr3ko5jwuQvKYn3A50-q5Hk/view?usp=sharing
 
 And use Yahoo Finance as stock data API and Victory as chart API.
-![This is an image](/screenshots/1.jpg)
+![This is an image](/screenshots/1.jpg | width = 100)

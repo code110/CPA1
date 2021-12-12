@@ -4,14 +4,22 @@ import { View, Button,TouchableOpacity,
          Text, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Chart from './Chart';
+import { useValue } from './ValueContext';
 
 const WatchlistView =({navigation}) => {
-  
+    const {currentValue,setCurrentValue} = useValue();
     const [stock, setStock] = useState();
     const [list, setList] = useState([]);
 
-    useEffect(() => {getData()}
+    useEffect(() => {
+      getData()
+      
+    }
     ,[])
+
+    useEffect(() => {
+      setStock(currentValue.stock)
+    },[currentValue])
     
 const getData = async () => {
         try {
@@ -76,13 +84,7 @@ const [selectedId, setSelectedId] = useState(null);
             otherParam: 'anything you want here',
           });
         }}
-        // onPress={() => {
-        //   const newList1 = list.filter(function(value){ 
-        //     return value != item.stock;
-        // });
-        //   setList(newList1)
-        //   storeData(newList1)
-        // }}
+        
         backgroundColor={{ backgroundColor }}
         textColor={{ color }}
       />

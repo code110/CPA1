@@ -7,9 +7,11 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WatchlistView from './watchlist'
 import ChartView from './ChartView'
 
+import ValueProvider,{useValue} from './ValueContext';
 
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -24,9 +26,14 @@ function Watchlist () {
   )
 }
 
+const data = {
+  stock:'',
+  list:[]
+}
+
 const MyStack = () => {
   return (
-
+    <ValueProvider value = {data}>
     <NavigationContainer>
       <Tab.Navigator>
         <Tab.Screen name="Home"
@@ -38,10 +45,12 @@ const MyStack = () => {
         </Tab.Navigator>
       
     </NavigationContainer>
+    </ValueProvider>
   );
 };
 
 const HomeScreen = ({ navigation }) => {
+  const {currentValue,setCurrentValue} = useValue();
   const [stock, onChangeStock] = useState('');
  
 
@@ -59,14 +68,26 @@ const HomeScreen = ({ navigation }) => {
         <Text style={styles.paragraph}>Please input the stock code:</Text>
         <TextInput
           style= {styles.input}
-          onChangeText= {onChangeStock}
-          value={stock}
+          onChangeText= {text => {
+            onChangeStock(text.toUpperCase())
+            
+          }}
+          
           placeholder="Stock code: such as AAPL"
         />
         <Button
           title="Check"
-          onPress={() =>
+          onPress={() =>{
+           
+              const newList = currentValue.list.concat({'stock':stock})
+              setCurrentValue({...currentValue,stock,newList})
+              console.log(newList)
+              console.log(currentValue.stock)
+              
+            
             navigation.navigate('Watchlist')
+          }
+            
                
           }
         />
